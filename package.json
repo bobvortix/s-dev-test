@@ -1,0 +1,28 @@
+{
+  "name": "s-programming-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify src/app.js -o dist/app.js",
+    "watch": "watchify src/app.js -o dist/app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bobvortix/s-programming-test.git"
+  },
+  "author": "",
+  "license": "",
+  "bugs": {
+    "url": "https://github.com/bobvortix/s-programming-test/issues"
+  },
+  "homepage": "https://github.com/bobvortix/s-programming-test#readme",
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "watchify": "^3.7.0"
+  },
+  "dependencies": {
+    "nightmare": "^2.1.2",
+    "vo": "^1.0.3"
+  }
+}
