@@ -1,1 +1,8 @@
-# s-dev-test
+# s-programming-test
+
+## Install
+
+```
+npm run build
+```
+
