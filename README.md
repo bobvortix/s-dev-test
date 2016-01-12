@@ -19,12 +19,12 @@ Then open up http://localhost:8000
 ## Decisions
 
 - Simple RWD with minimal, no library MVC JavaScript.
+- No libraries/frameworks/external dependencies (except for polyfills).
 - No CSS pre-processor such as Sass/LESS etc.
-- Wrap JSONP code into Flickr API for ability to extend functionality and take away complication of JSONP handling.
+- Wrap JSONP code into Flickr API for the ability to extend functionality and take away complication of JSONP handling.
 - Works with modern browsers (IE9+) and should work on IE8 with minimal additional effort.
 - Use [CommonJS](https://webpack.github.io/docs/commonjs.html) style syntax for dependencies and [Browserify](http://browserify.org/) to build and bundle resources (rather than anything more heavyweight such as Gulp/Grunt/Webpack).
 - Use [Jest](https://facebook.github.io/jest/) for testing (Facebook library built on top of Jasmine test framework). See `src/__tests__`.
-- No frameworks/external dependencies (except for polyfills).
 - No view templating i.e. Mustache, React etc. (due to time constraints).
 - Use [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) rather than callbacks (where appropriate), with a [polyfill](https://github.com/jakearchibald/es6-promise) for cross-browser support.
 - Use some ES5 functionality (e.g. `forEach`, `map`, `filter`).
