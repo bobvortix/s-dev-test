@@ -1,0 +1,102 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+body {
+  font-family: sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.title {
+  text-align: center;
+  margin: 64px 0 32px 0;
+}
+
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.visually-hidden { 
+  position: absolute; 
+  overflow: hidden; 
+  clip: rect(0 0 0 0); 
+  height: 1px; width: 1px; 
+  margin: -1px; padding: 0; border: 0; 
+}
+
+.form {
+  display: block;
+  margin: 32px 0;
+}
+
+.text-input {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-size: 20px;
+}
+
+.debug {
+  display: block;
+  padding: 16px;
+  background-color: #111;
+  color: #0f0;
+  margin: 32px 0;
+  overflow-x: auto;
+}
+
+.main {
+  text-align: center;
+}
+
+.grid {
+  margin-left: -16px;
+}
+
+.grid__item {
+  padding-left: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-bottom: 16px;
+}
+
+.grid__item--half {
+  width: 50%;
+}
+
+@media all and (min-width: 800px) {
+  .grid__item--quarter\@800 {
+    width: 25%;
+  }
+}
+
+.photo {
+  cursor: pointer;
+  border: 2px solid #ccc;
+  padding: 2px;
+}
+
+.photo--selected {
+  border: 2px dashed #f07;
+}
+
+.photo--selected:hover {
+  border-color: #f70;
+}
+
+.photo:hover {
+  border-color: #000;
+}
+
+.photo__img {
+  min-height: 64px;
+}

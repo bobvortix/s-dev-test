@@ -1,27 +1,63 @@
 var FlickrAPI = require('./FlickrAPI.js');
+var mixinListeners = require('./mixinListeners.js');
+var createFavourites = require('./createFavourites.js');
 
-module.exports = function(opts) {
+module.exports = function() {
+
+  var itemsById = {};
+  var model = { items: [] };
   
-  opts = opts || {};
-  var tag = opts.tag || 'london';
-  var items = [];
-  var listeners = { update: [] };
+  mixinListeners(model, ['update', 'debug']);
   
-  FlickrAPI.photosPublic(tag).then(function(data) {
-    notify('update', data)
-  });
+  var favourites = createFavourites();
   
-  function notify(name, data) {
-    if (listeners[name])
-      listeners[name].map(function(fn) { fn(data); });
+  model.notify('debug', 'Found ' + favourites.count() + ' stored favourite(s).');
+  
+  function createItem(item) {
+    item.id = item.link;
+    item.selected = favourites.indexOf(item.id) !== -1;
+    return item;
   }
   
-  return {
+  function setTag(tag) {
     
-    on: function(name, cb) {
-      if (listeners[name] && listeners[name].indexOf(cb) === -1)
-        listeners[name].push(cb);
-    }
+    itemsById = [];
+    model.items = [];
+
+    model.notify('update', model);
     
-  };
+    FlickrAPI.photosPublic(tag).then(function(data) {
+      model.items = data.items.map(createItem);
+      model.items.forEach(function(item) { itemsById[item.id] = item; });
+      model.notify('update', model);
+    });
+  }
+  
+  function select(item) {
+    item.selected = true;
+    favourites.add(item.id);
+    model.notify('debug', 'Favourited ' + item.id);
+  }
+  
+  function deselect(item) {
+    item.selected = false;
+    favourites.remove(item.id);
+    model.notify('debug', 'Unfavourited ' + item.id);
+  } 
+  
+  function toggle(itemId) {
+    var item = itemsById[itemId];
+
+    if (item.selected)
+      deselect(item);
+    else
+      select(item);
+
+    model.notify('update', model);
+  }
+  
+  model.setTag = setTag;
+  model.toggle = toggle;
+  
+  return model;
 };

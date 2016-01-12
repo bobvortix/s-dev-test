@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest",
     "build": "browserify src/app.js -o dist/app.js",
-    "watch": "watchify src/app.js -o dist/app.js"
+    "watch": "watchify src/app.js -o dist/app.js",
+    "start": "python -m SimpleHTTPServer | npm run watch"
   },
   "jest": {
     "testRunner": "./node_modules/jest-cli/src/testRunners/jasmine/jasmine2.js"

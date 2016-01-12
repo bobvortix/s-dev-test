@@ -1105,57 +1105,212 @@ var createPhotosModel = require('./createPhotosModel.js');
 var createPhotosView = require('./createPhotosView.js');
 
 var mount = document.getElementById('app');
-var model = createPhotosModel({tag: 'london'});
+var model = createPhotosModel();
 var view = createPhotosView(mount);
 
 model.on('update', view.setModel);
-},{"./createPhotosModel.js":5,"./createPhotosView.js":6,"es6-promise":1}],5:[function(require,module,exports){
-var FlickrAPI = require('./FlickrAPI.js');
 
-module.exports = function(opts) {
+view.on('toggle', function(photoId) {
+  model.toggle(photoId);
+});
+
+document
+  .querySelector('#search-form')
+  .addEventListener('submit', function(e) {
+    e.preventDefault();
+    model.setTag(document.querySelector('#text-input').value);
+  }
+);
+
+function debug() {
+  var debugView = require('./createDebugView.js')(document.getElementById('debug'));
   
-  opts = opts || {};
-  var tag = opts.tag || 'london';
-  var items = [];
-  var listeners = { update: [] };
-  
-  FlickrAPI.photosPublic(tag).then(function(data) {
-    notify('update', data)
+  model.on('update', function(model) {
+    debugView.log('Update ' + model.items.length + ' item(s)');
   });
   
-  function notify(name, data) {
-    if (listeners[name])
-      listeners[name].map(function(fn) { fn(data); });
-  }
+  model
+    .on('debug', debugView.log)
+    .on('debug', function(text) {
+      console.log(text);
+    });
+  
+  view.on('toggle', function(photoId) {
+    debugView.log('Toggled ' + photoId);
+  });
+}
+
+debug();
+},{"./createDebugView.js":5,"./createPhotosModel.js":6,"./createPhotosView.js":7,"es6-promise":1}],5:[function(require,module,exports){
+module.exports = function(mount) {
   
   return {
-    
-    on: function(name, cb) {
-      if (listeners[name] && listeners[name].indexOf(cb) === -1)
-        listeners[name].push(cb);
+    log: function(text) {
+      mount.innerHTML += (text + '<br/>');
     }
-    
   };
 };
-},{"./FlickrAPI.js":3}],6:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
+var FlickrAPI = require('./FlickrAPI.js');
+var mixinListeners = require('./mixinListeners.js');
+var createStore = require('./createStore.js');
+
+module.exports = function() {
+
+  var itemsById = {};
+  var model = { items: [] };
+  
+  mixinListeners(model, ['update', 'debug']);
+  
+  var store = createStore('favourites');
+  var favourites = store.get();
+  if (!favourites) {
+    favourites = [];
+    store.set(favourites);
+  }
+  
+  model.notify('debug', 'Found ' + favourites.length + ' stored favourite(s).');
+  
+  function createItem(item) {
+    item.id = item.link;
+    item.selected = favourites.indexOf(item.id) !== -1;
+    return item;
+  }
+  
+  function setTag(tag) {
+    
+    itemsById = [];
+    model.items = [];
+
+    model.notify('update', model);
+    
+    FlickrAPI.photosPublic(tag).then(function(data) {
+      model.items = data.items.map(createItem);
+      model.items.forEach(function(item) { itemsById[item.id] = item; });
+      model.notify('update', model);
+    });
+  }
+  
+  function select(item) {
+    item.selected = true;
+    if (favourites.indexOf(item.id) === -1)
+      favourites.push(item.id);
+    store.set(favourites);
+    model.notify('debug', 'Favourited ' + item.id);
+  }
+  
+  function deselect(item) {
+    item.selected = false;
+    var idx = favourites.indexOf(item.id);
+    if (idx !== -1)
+      favourites.splice(idx, 1);
+    store.set(favourites);
+    model.notify('debug', 'Unfavourited ' + item.id);
+  } 
+  
+  function toggle(itemId) {
+    var item = itemsById[itemId];
+
+    if (item.selected)
+      deselect(item);
+    else
+      select(item);
+
+    model.notify('update', model);
+  }
+  
+  model.setTag = setTag;
+  model.toggle = toggle;
+  
+  return model;
+};
+},{"./FlickrAPI.js":3,"./createStore.js":8,"./mixinListeners.js":9}],7:[function(require,module,exports){
+var mixinListeners = require('./mixinListeners.js');
+
 module.exports = function(mount) {
+  
+  var view = {};
+  
+  mixinListeners(view, ['toggle']);
+  
+  function createItemHtml(item) {
+    return '<div class="grid__item grid__item--half grid__item--quarter@800">' +
+        '<div class="photo ' + (item.selected ? 'photo--selected' : '') + '" data-id="' + item.id + '">' +
+          '<img class="photo__img" src="' + item.media.m + '"/>' +
+        '</div>' +
+      '</div>';
+  }
+  
+  function handleClick(photo) {
+    photo.addEventListener('click', function(e) {
+      e.preventDefault();
+      var id = photo.getAttribute('data-id');
+      view.notify('toggle', id);
+    });
+  }
   
   function setModel(model) {
     
-    console.log('Setting the view model');
-    console.log(model);
+    /* 
+     * This is really inefficient but easy to reason about.
+     * A Virtual DOM with smart diffing (e.g. React) would be a good idea.
+     */
     
+    var html = '<div class="photos grid">';
+    html += model.items.map(createItemHtml).join('');
+    html += '</div>';
+    
+    mount.innerHTML = html;
+    
+    photos = Array.prototype.slice.call(mount.querySelectorAll('.photo'));
+    photos.forEach(handleClick);
   }
   
-  // var photoEl = document.createElement('div');
-  // 
-  // photoEl.innerText = 'HELLO';
-  // 
-  // mount.appendChild(photoEl);
+  view.setModel = setModel;
   
+  return view;
+};
+},{"./mixinListeners.js":9}],8:[function(require,module,exports){
+module.exports = function(key) {
+
+  // Simple object/array store using JSON for serialisation
   return {
-    
-    setModel: setModel
+    set: function(object) {
+      localStorage.setItem(key, JSON.stringify(object));
+    },
+    get: function() {
+      return JSON.parse(localStorage.getItem(key));
+    }
   };
+};
+},{}],9:[function(require,module,exports){
+module.exports = function(target, names) {
+  
+  var listeners = {};
+  (names || []).forEach(function(name) {
+    listeners[name] = [];
+  });
+  
+  target.notify = function(name, data) {
+    if (listeners[name]) {
+      setTimeout(function() {
+        listeners[name].forEach(function(fn) { fn(data); });
+      }, 0);
+    }
+    return target;
+  }
+  
+  target.on = function(name, cb) {
+    if (listeners[name] && listeners[name].indexOf(cb) === -1)
+      listeners[name].push(cb);
+    return target;
+  }
+  
+  target.off = function() {
+    // ... saving some time ...
+    return target;
+  };
+  
+  return target;
 };
 },{}]},{},[4]);

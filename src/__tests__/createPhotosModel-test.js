@@ -1,4 +1,5 @@
 jest.dontMock('../createPhotosModel.js');
+jest.dontMock('../mixinListeners.js');
 
 describe('createPhotosModel', function() {
   
@@ -14,16 +15,29 @@ describe('createPhotosModel', function() {
   
   it('should fire an "update" event when it received data from the Flickr API', function(done) {
     
+    var items = [
+      {
+        'link': 'http://example.com/a-link'
+      }
+    ];
+    var expectedItems = [
+      {
+        id: 'http://example.com/a-link',
+        link: 'http://example.com/a-link',
+        selected: false
+      }
+    ];
+    
     var FlickrAPI = require('../FlickrAPI.js');
     spyOn(FlickrAPI, 'photosPublic').and.returnValue(new Promise(function(resolve) {
-      resolve({some: 'data'});
+      resolve({items: items});
     }));
     
     var createPhotosModel = require('../createPhotosModel.js');
     var model = createPhotosModel({tag: 'b-tag'});
   
     model.on('update', function(model) {
-      expect(model).toEqual({some: 'data'});
+      expect(model.items).toEqual(expectedItems);
       done();
     });
   });
