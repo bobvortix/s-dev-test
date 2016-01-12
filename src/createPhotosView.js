@@ -8,7 +8,7 @@ module.exports = function(mount) {
   
   function createItemHtml(item) {
     return '<div class="grid__item grid__item--half grid__item--quarter@800">' +
-        '<div class="photo ' + (item.selected ? 'photo--selected' : '') + '" data-id="' + item.id + '">' +
+        '<div class="photo ' + (item.favourited ? 'photo--favourited' : '') + '" data-id="' + item.id + '">' +
           '<img class="photo__img" src="' + item.media.m + '"/>' +
         '</div>' +
       '</div>';

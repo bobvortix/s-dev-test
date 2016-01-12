@@ -14,6 +14,12 @@ body {
   padding-right: 32px;
 }
 
+img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
 .footer {
   text-align: center;
   margin: 32px 0;
@@ -22,12 +28,6 @@ body {
 .title {
   text-align: center;
   margin: 64px 0 32px 0;
-}
-
-img {
-  display: block;
-  width: 100%;
-  height: auto;
 }
 
 .visually-hidden { 
@@ -86,20 +86,21 @@ img {
 
 .photo {
   cursor: pointer;
-  border: 2px solid #ccc;
-  padding: 2px;
+  border: 2px solid #e0e0e0;
+  padding: 4px;
 }
 
-.photo--selected {
-  border: 2px dashed #f07;
+.photo--favourited {
+  background-color: #f07;
+  border: 2px solid #f07;
 }
 
-.photo--selected:hover {
+.photo--favourited:hover {
   border-color: #f70;
 }
 
 .photo:hover {
-  border-color: #000;
+  border-color: #f07;
 }
 
 .photo__img {

@@ -1109,11 +1109,9 @@ var model = createPhotosModel();
 var view = createPhotosView(mount);
 
 model.on('update', view.setModel);
+view.on('toggle', model.toggle);
 
-view.on('toggle', function(photoId) {
-  model.toggle(photoId);
-});
-
+// Would refactor out into its own view given more time
 document
   .querySelector('#search-form')
   .addEventListener('submit', function(e) {
@@ -1131,9 +1129,7 @@ function debug() {
   
   model
     .on('debug', debugView.log)
-    .on('debug', function(text) {
-      console.log(text);
-    });
+    .on('debug', function(text) { console.log(text); });
   
   view.on('toggle', function(photoId) {
     debugView.log('Toggled ' + photoId);
@@ -1141,7 +1137,7 @@ function debug() {
 }
 
 debug();
-},{"./createDebugView.js":5,"./createPhotosModel.js":6,"./createPhotosView.js":7,"es6-promise":1}],5:[function(require,module,exports){
+},{"./createDebugView.js":5,"./createPhotosModel.js":7,"./createPhotosView.js":8,"es6-promise":1}],5:[function(require,module,exports){
 module.exports = function(mount) {
   
   return {
@@ -1151,9 +1147,49 @@ module.exports = function(mount) {
   };
 };
 },{}],6:[function(require,module,exports){
+var createStore = require('./createStore.js');
+
+module.exports = function() {
+  
+  var store = createStore('favourites');
+  var list = store.get();
+  if (!list) {
+    list = [];
+    store.set(list);
+  }
+  
+  function count() {
+    return list.length;
+  }
+  
+  function add(itemId) {
+    if (!contains(itemId))
+      list.push(itemId);
+    store.set(list);
+  }
+  
+  function remove(itemId) {
+    var idx = list.indexOf(itemId);
+    if (idx !== -1)
+      list.splice(idx, 1);
+    store.set(list);
+  }
+  
+  function contains(itemId) {
+    return list.indexOf(itemId) !== -1;
+  }
+  
+  return {
+    count: count,
+    add: add,
+    remove: remove,
+    contains: contains
+  };
+};
+},{"./createStore.js":9}],7:[function(require,module,exports){
 var FlickrAPI = require('./FlickrAPI.js');
 var mixinListeners = require('./mixinListeners.js');
-var createStore = require('./createStore.js');
+var createFavourites = require('./createFavourites.js');
 
 module.exports = function() {
 
@@ -1162,18 +1198,14 @@ module.exports = function() {
   
   mixinListeners(model, ['update', 'debug']);
   
-  var store = createStore('favourites');
-  var favourites = store.get();
-  if (!favourites) {
-    favourites = [];
-    store.set(favourites);
-  }
+  var favourites = createFavourites();
   
-  model.notify('debug', 'Found ' + favourites.length + ' stored favourite(s).');
+  model.notify('debug', 'Found ' + favourites.count() + ' stored favourite(s).');
   
   function createItem(item) {
+    
     item.id = item.link;
-    item.selected = favourites.indexOf(item.id) !== -1;
+    item.favourited = favourites.contains(item.id);
     return item;
   }
   
@@ -1185,36 +1217,33 @@ module.exports = function() {
     model.notify('update', model);
     
     FlickrAPI.photosPublic(tag).then(function(data) {
-      model.items = data.items.map(createItem);
-      model.items.forEach(function(item) { itemsById[item.id] = item; });
+
+      var items = data.items.map(createItem);
+      model.items = items;
+      model.items.forEach(function(item) { itemsById[item.id] = item; });      
       model.notify('update', model);
     });
   }
   
-  function select(item) {
-    item.selected = true;
-    if (favourites.indexOf(item.id) === -1)
-      favourites.push(item.id);
-    store.set(favourites);
+  function favourite(item) {
+    item.favourited = true;
+    favourites.add(item.id);
     model.notify('debug', 'Favourited ' + item.id);
   }
   
-  function deselect(item) {
-    item.selected = false;
-    var idx = favourites.indexOf(item.id);
-    if (idx !== -1)
-      favourites.splice(idx, 1);
-    store.set(favourites);
+  function unfavourite(item) {
+    item.favourited = false;
+    favourites.remove(item.id);
     model.notify('debug', 'Unfavourited ' + item.id);
   } 
   
   function toggle(itemId) {
     var item = itemsById[itemId];
 
-    if (item.selected)
-      deselect(item);
+    if (item.favourited)
+      unfavourite(item);
     else
-      select(item);
+      favourite(item);
 
     model.notify('update', model);
   }
@@ -1224,7 +1253,7 @@ module.exports = function() {
   
   return model;
 };
-},{"./FlickrAPI.js":3,"./createStore.js":8,"./mixinListeners.js":9}],7:[function(require,module,exports){
+},{"./FlickrAPI.js":3,"./createFavourites.js":6,"./mixinListeners.js":10}],8:[function(require,module,exports){
 var mixinListeners = require('./mixinListeners.js');
 
 module.exports = function(mount) {
@@ -1235,7 +1264,7 @@ module.exports = function(mount) {
   
   function createItemHtml(item) {
     return '<div class="grid__item grid__item--half grid__item--quarter@800">' +
-        '<div class="photo ' + (item.selected ? 'photo--selected' : '') + '" data-id="' + item.id + '">' +
+        '<div class="photo ' + (item.favourited ? 'photo--favourited' : '') + '" data-id="' + item.id + '">' +
           '<img class="photo__img" src="' + item.media.m + '"/>' +
         '</div>' +
       '</div>';
@@ -1270,7 +1299,7 @@ module.exports = function(mount) {
   
   return view;
 };
-},{"./mixinListeners.js":9}],8:[function(require,module,exports){
+},{"./mixinListeners.js":10}],9:[function(require,module,exports){
 module.exports = function(key) {
 
   // Simple object/array store using JSON for serialisation
@@ -1283,7 +1312,7 @@ module.exports = function(key) {
     }
   };
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 module.exports = function(target, names) {
   
   var listeners = {};

@@ -9,20 +9,31 @@ module.exports = function() {
     store.set(list);
   }
   
+  function count() {
+    return list.length;
+  }
+  
+  function add(itemId) {
+    if (!contains(itemId))
+      list.push(itemId);
+    store.set(list);
+  }
+  
+  function remove(itemId) {
+    var idx = list.indexOf(itemId);
+    if (idx !== -1)
+      list.splice(idx, 1);
+    store.set(list);
+  }
+  
+  function contains(itemId) {
+    return list.indexOf(itemId) !== -1;
+  }
+  
   return {
-    count: function() {
-      return list.length;
-    },
-    add: function(itemId) {
-      if (list.indexOf(item.id) === -1)
-        list.push(item.id);
-      store.set(list);
-    },
-    remove: function(itemId) {
-      var idx = list.indexOf(item.id);
-      if (idx !== -1)
-        list.splice(idx, 1);
-      store.set(list);
-    }
+    count: count,
+    add: add,
+    remove: remove,
+    contains: contains
   };
 };

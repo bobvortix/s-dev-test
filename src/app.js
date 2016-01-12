@@ -8,10 +8,7 @@ var model = createPhotosModel();
 var view = createPhotosView(mount);
 
 model.on('update', view.setModel);
-
-view.on('toggle', function(photoId) {
-  model.toggle(photoId);
-});
+view.on('toggle', model.toggle);
 
 // Would refactor out into its own view given more time
 document
@@ -31,9 +28,7 @@ function debug() {
   
   model
     .on('debug', debugView.log)
-    .on('debug', function(text) {
-      console.log(text);
-    });
+    .on('debug', function(text) { console.log(text); });
   
   view.on('toggle', function(photoId) {
     debugView.log('Toggled ' + photoId);

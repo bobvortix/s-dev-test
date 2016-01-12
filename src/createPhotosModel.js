@@ -14,8 +14,9 @@ module.exports = function() {
   model.notify('debug', 'Found ' + favourites.count() + ' stored favourite(s).');
   
   function createItem(item) {
+    
     item.id = item.link;
-    item.selected = favourites.indexOf(item.id) !== -1;
+    item.favourited = favourites.contains(item.id);
     return item;
   }
   
@@ -27,20 +28,22 @@ module.exports = function() {
     model.notify('update', model);
     
     FlickrAPI.photosPublic(tag).then(function(data) {
-      model.items = data.items.map(createItem);
-      model.items.forEach(function(item) { itemsById[item.id] = item; });
+
+      var items = data.items.map(createItem);
+      model.items = items;
+      model.items.forEach(function(item) { itemsById[item.id] = item; });      
       model.notify('update', model);
     });
   }
   
-  function select(item) {
-    item.selected = true;
+  function favourite(item) {
+    item.favourited = true;
     favourites.add(item.id);
     model.notify('debug', 'Favourited ' + item.id);
   }
   
-  function deselect(item) {
-    item.selected = false;
+  function unfavourite(item) {
+    item.favourited = false;
     favourites.remove(item.id);
     model.notify('debug', 'Unfavourited ' + item.id);
   } 
@@ -48,10 +51,10 @@ module.exports = function() {
   function toggle(itemId) {
     var item = itemsById[itemId];
 
-    if (item.selected)
-      deselect(item);
+    if (item.favourited)
+      unfavourite(item);
     else
-      select(item);
+      favourite(item);
 
     model.notify('update', model);
   }
