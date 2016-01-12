@@ -16,7 +16,7 @@ npm test
 
 Then open up http://localhost:8000
 
-## Decisions
+## Description
 
 - Simple RWD with minimal, no library MVC JavaScript.
 - No libraries/frameworks/external dependencies (except for polyfills).
