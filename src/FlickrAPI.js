@@ -27,7 +27,9 @@ function requestJsonp(path, fn) {
 module.exports = {
   
   photosPublic: function(tags, callback) {
-    return requestJsonp('/photos_public.gne?tags=' +  tags, callback);
+    return new Promise(function(resolve) {
+      requestJsonp('/photos_public.gne?tags=' +  tags, resolve);
+    });
   }
   
 };

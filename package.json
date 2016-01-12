@@ -4,8 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "test": "jest",
     "build": "browserify src/app.js -o dist/app.js",
     "watch": "watchify src/app.js -o dist/app.js"
+  },
+  "jest": {
+    "testRunner": "./node_modules/jest-cli/src/testRunners/jasmine/jasmine2.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +23,8 @@
   "homepage": "https://github.com/bobvortix/s-programming-test#readme",
   "devDependencies": {
     "browserify": "^13.0.0",
+    "jest": "^0.1.40",
+    "jest-cli": "^0.8.2",
     "watchify": "^3.7.0"
   },
   "dependencies": {
