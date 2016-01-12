@@ -18,7 +18,7 @@ Then open up http://localhost:8000
 
 ## Description
 
-- Simple RWD with minimal, no library MVC JavaScript.
+- Simple RWD with minimal MVC JavaScript.
 - No libraries/frameworks/external dependencies (except for polyfills).
 - No CSS pre-processor such as Sass/LESS etc.
 - Wrap JSONP code into Flickr API for the ability to extend functionality and take away complication of JSONP handling.
