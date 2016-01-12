@@ -13,6 +13,7 @@ view.on('toggle', function(photoId) {
   model.toggle(photoId);
 });
 
+// Would refactor out into its own view given more time
 document
   .querySelector('#search-form')
   .addEventListener('submit', function(e) {
