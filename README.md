@@ -1,4 +1,4 @@
-# s-programming-test
+# Task 1
 
 ## Install and run
 
