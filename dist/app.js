@@ -1103,25 +1103,21 @@ require('es6-promise').polyfill();
 
 var createPhotosModel = require('./createPhotosModel.js');
 var createPhotosView = require('./createPhotosView.js');
+var createFormView = require('./createFormView.js');
 
 var mount = document.getElementById('app');
 var model = createPhotosModel();
 var view = createPhotosView(mount);
+var formView = createFormView();
 
 model
   .on('update', view.setModel)
   .on('favourite', view.favourite)
   .on('unfavourite', view.unfavourite);
+
 view.on('toggle', model.toggle);
 
-// Would refactor out into its own view given more time
-document
-  .querySelector('#search-form')
-  .addEventListener('submit', function(e) {
-    e.preventDefault();
-    model.setTag(document.querySelector('#text-input').value);
-  }
-);
+formView.on('submit', model.setTag);
 
 function debug() {
   var debugView = require('./createDebugView.js')(document.getElementById('debug'));
@@ -1144,7 +1140,7 @@ function debug() {
 }
 
 debug();
-},{"./createDebugView.js":5,"./createPhotosModel.js":7,"./createPhotosView.js":8,"es6-promise":1}],5:[function(require,module,exports){
+},{"./createDebugView.js":5,"./createFormView.js":7,"./createPhotosModel.js":8,"./createPhotosView.js":9,"es6-promise":1}],5:[function(require,module,exports){
 module.exports = function(mount) {
   
   return {
@@ -1194,7 +1190,26 @@ module.exports = function() {
     contains: contains
   };
 };
-},{"./createStore.js":9}],7:[function(require,module,exports){
+},{"./createStore.js":10}],7:[function(require,module,exports){
+var mixinListeners = require('./mixinListeners.js');
+
+module.exports = function() {
+  
+  var view = {};
+
+  document
+    .querySelector('#search-form')
+    .addEventListener('submit', function(e) {
+      e.preventDefault();
+      view.notify('submit', document.querySelector('#text-input').value);
+    }
+  );
+  
+  mixinListeners(view, ['submit']);
+  
+  return view;
+};
+},{"./mixinListeners.js":11}],8:[function(require,module,exports){
 var FlickrAPI = require('./FlickrAPI.js');
 var mixinListeners = require('./mixinListeners.js');
 var createFavourites = require('./createFavourites.js');
@@ -1259,7 +1274,7 @@ module.exports = function() {
   
   return model;
 };
-},{"./FlickrAPI.js":3,"./createFavourites.js":6,"./mixinListeners.js":10}],8:[function(require,module,exports){
+},{"./FlickrAPI.js":3,"./createFavourites.js":6,"./mixinListeners.js":11}],9:[function(require,module,exports){
 var mixinListeners = require('./mixinListeners.js');
 
 module.exports = function(mount) {
@@ -1308,13 +1323,11 @@ module.exports = function(mount) {
   }
   
   function favourite(itemId) {
-    console.log('**** Favourite ' + itemId);
     var item = findItem(itemId);
     item.classList.add(FAVOURITE_CLASS);
   }
   
   function unfavourite(itemId) {
-    console.log('**** Unfavourited ' + itemId);
     var item = findItem(itemId);
     item.classList.remove(FAVOURITE_CLASS);
   }
@@ -1325,7 +1338,7 @@ module.exports = function(mount) {
   
   return view;
 };
-},{"./mixinListeners.js":10}],9:[function(require,module,exports){
+},{"./mixinListeners.js":11}],10:[function(require,module,exports){
 module.exports = function(key) {
 
   // Simple object/array store using JSON for serialisation
@@ -1338,7 +1351,7 @@ module.exports = function(key) {
     }
   };
 };
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 module.exports = function(target, names) {
   
   var listeners = {};

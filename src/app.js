@@ -2,25 +2,21 @@ require('es6-promise').polyfill();
 
 var createPhotosModel = require('./createPhotosModel.js');
 var createPhotosView = require('./createPhotosView.js');
+var createFormView = require('./createFormView.js');
 
 var mount = document.getElementById('app');
 var model = createPhotosModel();
 var view = createPhotosView(mount);
+var formView = createFormView();
 
 model
   .on('update', view.setModel)
   .on('favourite', view.favourite)
   .on('unfavourite', view.unfavourite);
+
 view.on('toggle', model.toggle);
 
-// Would refactor out into its own view given more time
-document
-  .querySelector('#search-form')
-  .addEventListener('submit', function(e) {
-    e.preventDefault();
-    model.setTag(document.querySelector('#text-input').value);
-  }
-);
+formView.on('submit', model.setTag);
 
 function debug() {
   var debugView = require('./createDebugView.js')(document.getElementById('debug'));

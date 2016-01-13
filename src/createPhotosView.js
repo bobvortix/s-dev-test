@@ -46,13 +46,11 @@ module.exports = function(mount) {
   }
   
   function favourite(itemId) {
-    console.log('**** Favourite ' + itemId);
     var item = findItem(itemId);
     item.classList.add(FAVOURITE_CLASS);
   }
   
   function unfavourite(itemId) {
-    console.log('**** Unfavourited ' + itemId);
     var item = findItem(itemId);
     item.classList.remove(FAVOURITE_CLASS);
   }
