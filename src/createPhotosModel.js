@@ -7,7 +7,7 @@ module.exports = function() {
   var itemsById = {};
   var model = { items: [] };
   
-  mixinListeners(model, ['update', 'debug']);
+  mixinListeners(model, ['update', 'favourite', 'unfavourite', 'debug']);
   
   var favourites = createFavourites();
   
@@ -39,13 +39,13 @@ module.exports = function() {
   function favourite(item) {
     item.favourited = true;
     favourites.add(item.id);
-    model.notify('debug', 'Favourited ' + item.id);
+    model.notify('favourite', item.id);  
   }
   
   function unfavourite(item) {
     item.favourited = false;
     favourites.remove(item.id);
-    model.notify('debug', 'Unfavourited ' + item.id);
+    model.notify('unfavourite', item.id);
   } 
   
   function toggle(itemId) {
@@ -55,8 +55,6 @@ module.exports = function() {
       unfavourite(item);
     else
       favourite(item);
-
-    model.notify('update', model);
   }
   
   model.setTag = setTag;

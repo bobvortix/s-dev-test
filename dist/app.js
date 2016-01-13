@@ -1108,7 +1108,10 @@ var mount = document.getElementById('app');
 var model = createPhotosModel();
 var view = createPhotosView(mount);
 
-model.on('update', view.setModel);
+model
+  .on('update', view.setModel)
+  .on('favourite', view.favourite)
+  .on('unfavourite', view.unfavourite);
 view.on('toggle', model.toggle);
 
 // Would refactor out into its own view given more time
@@ -1123,13 +1126,17 @@ document
 function debug() {
   var debugView = require('./createDebugView.js')(document.getElementById('debug'));
   
-  model.on('update', function(model) {
-    debugView.log('Update ' + model.items.length + ' item(s)');
-  });
-  
   model
-    .on('debug', debugView.log)
-    .on('debug', function(text) { console.log(text); });
+    .on('update', function(model) {
+      debugView.log('Update ' + model.items.length + ' item(s)');
+    })
+    .on('favourite', function(itemId) {
+      debugView.log('Favourited ' + itemId);
+    })
+    .on('unfavourite', function(itemId) {
+      debugView.log('Unfavourited ' + itemId);
+    })
+    .on('debug', debugView.log);
   
   view.on('toggle', function(photoId) {
     debugView.log('Toggled ' + photoId);
@@ -1142,6 +1149,7 @@ module.exports = function(mount) {
   
   return {
     log: function(text) {
+      console.log(text);
       mount.innerHTML += (text + '<br/>');
     }
   };
@@ -1196,7 +1204,7 @@ module.exports = function() {
   var itemsById = {};
   var model = { items: [] };
   
-  mixinListeners(model, ['update', 'debug']);
+  mixinListeners(model, ['update', 'favourite', 'unfavourite', 'debug']);
   
   var favourites = createFavourites();
   
@@ -1228,13 +1236,13 @@ module.exports = function() {
   function favourite(item) {
     item.favourited = true;
     favourites.add(item.id);
-    model.notify('debug', 'Favourited ' + item.id);
+    model.notify('favourite', item.id);  
   }
   
   function unfavourite(item) {
     item.favourited = false;
     favourites.remove(item.id);
-    model.notify('debug', 'Unfavourited ' + item.id);
+    model.notify('unfavourite', item.id);
   } 
   
   function toggle(itemId) {
@@ -1244,8 +1252,6 @@ module.exports = function() {
       unfavourite(item);
     else
       favourite(item);
-
-    model.notify('update', model);
   }
   
   model.setTag = setTag;
@@ -1260,11 +1266,13 @@ module.exports = function(mount) {
   
   var view = {};
   
+  var FAVOURITE_CLASS = 'photo--favourited';
+  
   mixinListeners(view, ['toggle']);
   
   function createItemHtml(item) {
     return '<div class="grid__item grid__item--half grid__item--quarter@800">' +
-        '<div class="photo ' + (item.favourited ? 'photo--favourited' : '') + '" data-id="' + item.id + '">' +
+        '<div class="photo ' + (item.favourited ? FAVOURITE_CLASS : '') + '" data-id="' + item.id + '">' +
           '<img class="photo__img" src="' + item.media.m + '"/>' +
         '</div>' +
       '</div>';
@@ -1295,7 +1303,25 @@ module.exports = function(mount) {
     photos.forEach(handleClick);
   }
   
+  function findItem(itemId) {
+    return mount.querySelector('[data-id="' + itemId + '"]');
+  }
+  
+  function favourite(itemId) {
+    console.log('**** Favourite ' + itemId);
+    var item = findItem(itemId);
+    item.classList.add(FAVOURITE_CLASS);
+  }
+  
+  function unfavourite(itemId) {
+    console.log('**** Unfavourited ' + itemId);
+    var item = findItem(itemId);
+    item.classList.remove(FAVOURITE_CLASS);
+  }
+  
   view.setModel = setModel;
+  view.favourite = favourite;
+  view.unfavourite = unfavourite;
   
   return view;
 };

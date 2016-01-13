@@ -4,11 +4,13 @@ module.exports = function(mount) {
   
   var view = {};
   
+  var FAVOURITE_CLASS = 'photo--favourited';
+  
   mixinListeners(view, ['toggle']);
   
   function createItemHtml(item) {
     return '<div class="grid__item grid__item--half grid__item--quarter@800">' +
-        '<div class="photo ' + (item.favourited ? 'photo--favourited' : '') + '" data-id="' + item.id + '">' +
+        '<div class="photo ' + (item.favourited ? FAVOURITE_CLASS : '') + '" data-id="' + item.id + '">' +
           '<img class="photo__img" src="' + item.media.m + '"/>' +
         '</div>' +
       '</div>';
@@ -39,7 +41,25 @@ module.exports = function(mount) {
     photos.forEach(handleClick);
   }
   
+  function findItem(itemId) {
+    return mount.querySelector('[data-id="' + itemId + '"]');
+  }
+  
+  function favourite(itemId) {
+    console.log('**** Favourite ' + itemId);
+    var item = findItem(itemId);
+    item.classList.add(FAVOURITE_CLASS);
+  }
+  
+  function unfavourite(itemId) {
+    console.log('**** Unfavourited ' + itemId);
+    var item = findItem(itemId);
+    item.classList.remove(FAVOURITE_CLASS);
+  }
+  
   view.setModel = setModel;
+  view.favourite = favourite;
+  view.unfavourite = unfavourite;
   
   return view;
 };
