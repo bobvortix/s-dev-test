@@ -1,4 +1,4 @@
-var mixinListeners = require('./mixinListeners.js');
+var mixinListeners = require('./mixinListeners');
 
 module.exports = function(mount) {
   
@@ -24,6 +24,15 @@ module.exports = function(mount) {
     });
   }
   
+  function findItem(itemId) {
+    return mount.querySelector('[data-id="' + itemId + '"]');
+  }  
+
+  function setLoading(model) {
+    console.log('HERE');
+    mount.innerHTML = '<div class="photos grid">Loading...</div>';
+  }
+
   function setModel(model) {
     
     /* 
@@ -41,10 +50,6 @@ module.exports = function(mount) {
     photos.forEach(handleClick);
   }
   
-  function findItem(itemId) {
-    return mount.querySelector('[data-id="' + itemId + '"]');
-  }
-  
   function favourite(itemId) {
     var item = findItem(itemId);
     item.classList.add(FAVOURITE_CLASS);
@@ -55,6 +60,7 @@ module.exports = function(mount) {
     item.classList.remove(FAVOURITE_CLASS);
   }
   
+  view.setLoading = setLoading;
   view.setModel = setModel;
   view.favourite = favourite;
   view.unfavourite = unfavourite;

@@ -1101,9 +1101,9 @@ module.exports = {
 },{}],4:[function(require,module,exports){
 require('es6-promise').polyfill();
 
-var createPhotosModel = require('./createPhotosModel.js');
-var createPhotosView = require('./createPhotosView.js');
-var createFormView = require('./createFormView.js');
+var createPhotosModel = require('./createPhotosModel');
+var createPhotosView = require('./createPhotosView');
+var createFormView = require('./createFormView');
 
 var mount = document.getElementById('app');
 var model = createPhotosModel();
@@ -1111,6 +1111,7 @@ var view = createPhotosView(mount);
 var formView = createFormView();
 
 model
+  .on('loading', view.setLoading)
   .on('update', view.setModel)
   .on('favourite', view.favourite)
   .on('unfavourite', view.unfavourite);
@@ -1119,28 +1120,8 @@ view.on('toggle', model.toggle);
 
 formView.on('submit', model.setTag);
 
-function debug() {
-  var debugView = require('./createDebugView.js')(document.getElementById('debug'));
-  
-  model
-    .on('update', function(model) {
-      debugView.log('Update ' + model.items.length + ' item(s)');
-    })
-    .on('favourite', function(itemId) {
-      debugView.log('Favourited ' + itemId);
-    })
-    .on('unfavourite', function(itemId) {
-      debugView.log('Unfavourited ' + itemId);
-    })
-    .on('debug', debugView.log);
-  
-  view.on('toggle', function(photoId) {
-    debugView.log('Toggled ' + photoId);
-  });
-}
-
-debug();
-},{"./createDebugView.js":5,"./createFormView.js":7,"./createPhotosModel.js":8,"./createPhotosView.js":9,"es6-promise":1}],5:[function(require,module,exports){
+require('./debug')(model, view);
+},{"./createFormView":7,"./createPhotosModel":8,"./createPhotosView":9,"./debug":11,"es6-promise":1}],5:[function(require,module,exports){
 module.exports = function(mount) {
   
   return {
@@ -1151,7 +1132,7 @@ module.exports = function(mount) {
   };
 };
 },{}],6:[function(require,module,exports){
-var createStore = require('./createStore.js');
+var createStore = require('./createStore');
 
 module.exports = function() {
   
@@ -1190,8 +1171,8 @@ module.exports = function() {
     contains: contains
   };
 };
-},{"./createStore.js":10}],7:[function(require,module,exports){
-var mixinListeners = require('./mixinListeners.js');
+},{"./createStore":10}],7:[function(require,module,exports){
+var mixinListeners = require('./mixinListeners');
 
 module.exports = function() {
   
@@ -1209,17 +1190,17 @@ module.exports = function() {
   
   return view;
 };
-},{"./mixinListeners.js":11}],8:[function(require,module,exports){
-var FlickrAPI = require('./FlickrAPI.js');
-var mixinListeners = require('./mixinListeners.js');
-var createFavourites = require('./createFavourites.js');
+},{"./mixinListeners":12}],8:[function(require,module,exports){
+var FlickrAPI = require('./FlickrAPI');
+var mixinListeners = require('./mixinListeners');
+var createFavourites = require('./createFavourites');
 
 module.exports = function() {
 
   var itemsById = {};
   var model = { items: [] };
   
-  mixinListeners(model, ['update', 'favourite', 'unfavourite', 'debug']);
+  mixinListeners(model, ['loading', 'update', 'favourite', 'unfavourite', 'debug']);
   
   var favourites = createFavourites();
   
@@ -1237,7 +1218,7 @@ module.exports = function() {
     itemsById = [];
     model.items = [];
 
-    model.notify('update', model);
+    model.notify('loading', model);
     
     FlickrAPI.photosPublic(tag).then(function(data) {
 
@@ -1274,8 +1255,8 @@ module.exports = function() {
   
   return model;
 };
-},{"./FlickrAPI.js":3,"./createFavourites.js":6,"./mixinListeners.js":11}],9:[function(require,module,exports){
-var mixinListeners = require('./mixinListeners.js');
+},{"./FlickrAPI":3,"./createFavourites":6,"./mixinListeners":12}],9:[function(require,module,exports){
+var mixinListeners = require('./mixinListeners');
 
 module.exports = function(mount) {
   
@@ -1301,6 +1282,15 @@ module.exports = function(mount) {
     });
   }
   
+  function findItem(itemId) {
+    return mount.querySelector('[data-id="' + itemId + '"]');
+  }  
+
+  function setLoading(model) {
+    console.log('HERE');
+    mount.innerHTML = '<div class="photos grid">Loading...</div>';
+  }
+
   function setModel(model) {
     
     /* 
@@ -1318,10 +1308,6 @@ module.exports = function(mount) {
     photos.forEach(handleClick);
   }
   
-  function findItem(itemId) {
-    return mount.querySelector('[data-id="' + itemId + '"]');
-  }
-  
   function favourite(itemId) {
     var item = findItem(itemId);
     item.classList.add(FAVOURITE_CLASS);
@@ -1332,13 +1318,14 @@ module.exports = function(mount) {
     item.classList.remove(FAVOURITE_CLASS);
   }
   
+  view.setLoading = setLoading;
   view.setModel = setModel;
   view.favourite = favourite;
   view.unfavourite = unfavourite;
   
   return view;
 };
-},{"./mixinListeners.js":11}],10:[function(require,module,exports){
+},{"./mixinListeners":12}],10:[function(require,module,exports){
 module.exports = function(key) {
 
   // Simple object/array store using JSON for serialisation
@@ -1352,6 +1339,32 @@ module.exports = function(key) {
   };
 };
 },{}],11:[function(require,module,exports){
+module.exports = function(model, view) {
+
+  var debugView = require('./createDebugView')(document.getElementById('debug'));
+  
+  debugView.log('Welcome to Flickr Favourites. Debug messages will appear below...<br/>');
+  
+  model
+    .on('loading', function() {
+      debugView.log('Loading...');
+    })
+    .on('update', function(model) {
+      debugView.log('Update ' + model.items.length + ' item(s)');
+    })
+    .on('favourite', function(itemId) {
+      debugView.log('Favourited ' + itemId);
+    })
+    .on('unfavourite', function(itemId) {
+      debugView.log('Unfavourited ' + itemId);
+    })
+    .on('debug', debugView.log);
+  
+  view.on('toggle', function(photoId) {
+    debugView.log('Toggled ' + photoId);
+  });
+};
+},{"./createDebugView":5}],12:[function(require,module,exports){
 module.exports = function(target, names) {
   
   var listeners = {};

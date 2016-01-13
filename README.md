@@ -29,10 +29,10 @@ Then open up http://localhost:8000
 - Works with modern browsers (IE10+) and should work on IE8/9 with minimal additional effort.
 - Use [CommonJS](https://webpack.github.io/docs/commonjs.html) style syntax for dependencies and [Browserify](http://browserify.org/) to build and bundle resources (rather than anything more heavyweight such as Gulp/Grunt/Webpack).
 - Use [Jest](https://facebook.github.io/jest/) for testing (Facebook library built on top of Jasmine test framework). See `src/__tests__`.
-- No view templating i.e. Mustache, React etc. (due to time constraints).
+- No view templating i.e. Mustache, React etc.
 - Use [Promises](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) rather than callbacks (where appropriate), with a [polyfill](https://github.com/jakearchibald/es6-promise) for cross-browser support.
 - Use some ES5 functionality (e.g. `forEach`, `map`, `filter`).
 - Use plain objects and [revealing module](http://zachberry.com/blog/creating-a-custom-node-js-module-with-the-revealing-module-pattern/) pattern with factory method, instead of constructor functions.
 - Uses `localStorage` as persistent browser store.
 - Many tests (including functional / acceptance tests) omitted to complete in a reasonable time.
-- Use Nightmare.js for some simple acceptance tests (not done).
+- Use Nightmare.js for some simple acceptance tests (not done)

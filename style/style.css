@@ -93,6 +93,16 @@ img {
 .photo--favourited {
   background-color: #f07;
   border: 2px solid #f07;
+  position: relative;
+}
+
+.photo--favourited::after {
+  position: absolute;
+  content: "\2605";
+  right: 8px;
+  bottom: 8px;
+  color: #f07;
+  font-size: 32px;
 }
 
 .photo--favourited:hover {

@@ -1,4 +1,4 @@
-var mixinListeners = require('./mixinListeners.js');
+var mixinListeners = require('./mixinListeners');
 
 module.exports = function() {
   

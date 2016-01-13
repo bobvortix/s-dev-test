@@ -1,4 +1,4 @@
-var createStore = require('./createStore.js');
+var createStore = require('./createStore');
 
 module.exports = function() {
   

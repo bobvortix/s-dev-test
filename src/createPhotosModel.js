@@ -1,13 +1,13 @@
-var FlickrAPI = require('./FlickrAPI.js');
-var mixinListeners = require('./mixinListeners.js');
-var createFavourites = require('./createFavourites.js');
+var FlickrAPI = require('./FlickrAPI');
+var mixinListeners = require('./mixinListeners');
+var createFavourites = require('./createFavourites');
 
 module.exports = function() {
 
   var itemsById = {};
   var model = { items: [] };
   
-  mixinListeners(model, ['update', 'favourite', 'unfavourite', 'debug']);
+  mixinListeners(model, ['loading', 'update', 'favourite', 'unfavourite', 'debug']);
   
   var favourites = createFavourites();
   
@@ -25,7 +25,7 @@ module.exports = function() {
     itemsById = [];
     model.items = [];
 
-    model.notify('update', model);
+    model.notify('loading', model);
     
     FlickrAPI.photosPublic(tag).then(function(data) {
 
