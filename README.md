@@ -34,10 +34,8 @@ Then open up http://localhost:8000
 - Use some ES5 functionality (e.g. `forEach`, `map`, `filter`).
 - Use plain objects and [revealing module](http://zachberry.com/blog/creating-a-custom-node-js-module-with-the-revealing-module-pattern/) pattern with factory method, instead of constructor functions.
 - Uses `localStorage` as persistent browser store.
-- Many tests (including functional / acceptance tests) omitted to complete in a reasonable time.
 
 ## TODO
 
+- Much better test coverage, including browser-based acceptance tests (e.g. Nightmare.js)
 - JSONP timeout
-- View templating (React)
-- Use Nightmare.js for some simple acceptance tests (not done)
