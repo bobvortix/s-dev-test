@@ -28,18 +28,19 @@ module.exports = function() {
     model.notify('loading', model);
     
     FlickrAPI.photosPublic(tag).then(function(data) {
-
       var items = data.items.map(createItem);
       model.items = items;
-      model.items.forEach(function(item) { itemsById[item.id] = item; });      
-      model.notify('update', model);
+      model.items.forEach(function(item) { itemsById[item.id] = item; });
+      model.syncNotify('update', model);
     });
+    
+    return this;
   }
   
   function favourite(item) {
     item.favourited = true;
     favourites.add(item.id);
-    model.notify('favourite', item.id);  
+    model.notify('favourite', item.id);
   }
   
   function unfavourite(item) {
@@ -55,6 +56,8 @@ module.exports = function() {
       unfavourite(item);
     else
       favourite(item);
+
+    return this;
   }
   
   model.setTag = setTag;

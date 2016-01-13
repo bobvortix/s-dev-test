@@ -1221,18 +1221,19 @@ module.exports = function() {
     model.notify('loading', model);
     
     FlickrAPI.photosPublic(tag).then(function(data) {
-
       var items = data.items.map(createItem);
       model.items = items;
-      model.items.forEach(function(item) { itemsById[item.id] = item; });      
-      model.notify('update', model);
+      model.items.forEach(function(item) { itemsById[item.id] = item; });
+      model.syncNotify('update', model);
     });
+    
+    return this;
   }
   
   function favourite(item) {
     item.favourited = true;
     favourites.add(item.id);
-    model.notify('favourite', item.id);  
+    model.notify('favourite', item.id);
   }
   
   function unfavourite(item) {
@@ -1248,6 +1249,8 @@ module.exports = function() {
       unfavourite(item);
     else
       favourite(item);
+
+    return this;
   }
   
   model.setTag = setTag;
@@ -1287,7 +1290,6 @@ module.exports = function(mount) {
   }  
 
   function setLoading(model) {
-    console.log('HERE');
     mount.innerHTML = '<div class="photos grid">Loading...</div>';
   }
 
@@ -1372,22 +1374,34 @@ module.exports = function(target, names) {
     listeners[name] = [];
   });
   
+  // Async
   target.notify = function(name, data) {
-    if (listeners[name]) {
-      setTimeout(function() {
-        listeners[name].forEach(function(fn) { fn(data); });
-      }, 0);
-    }
+    
+    setTimeout(function() {
+      target.syncNotify(name, data);
+    }, 0);
+    
+    return this;
+  }
+  
+  target.syncNotify = function(name, data) {
+
+    if (listeners[name] && listeners[name].length > 0)
+      listeners[name].forEach(function(fn) { fn(data); });
+
     return target;
   }
   
   target.on = function(name, cb) {
+    
     if (listeners[name] && listeners[name].indexOf(cb) === -1)
       listeners[name].push(cb);
+    
     return target;
   }
   
   target.off = function() {
+
     // ... saving some time ...
     return target;
   };

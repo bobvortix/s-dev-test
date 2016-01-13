@@ -29,7 +29,6 @@ module.exports = function(mount) {
   }  
 
   function setLoading(model) {
-    console.log('HERE');
     mount.innerHTML = '<div class="photos grid">Loading...</div>';
   }
 
