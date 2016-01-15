@@ -37,5 +37,7 @@ Then open up http://localhost:8000
 
 ## TODO
 
+- ESLint
+- Travis CI
 - Much better test coverage, including browser-based acceptance tests (e.g. Nightmare.js)
 - JSONP timeout
