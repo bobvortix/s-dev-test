@@ -4,18 +4,18 @@
 
 http://bobvortix.github.io/s-programming-test/
 
+## Tests
+
+See [src/__tests__](src/__tests__)
+
+To run tests `npm install` then `npm test`.
+
 ## Install and run
 
 ```
 npm install
 npm run build
 python -m SimpleHTTPServer
-```
-
-## Test
-
-```
-npm test
 ```
 
 Then open up http://localhost:8000
