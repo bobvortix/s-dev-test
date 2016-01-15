@@ -29,7 +29,5 @@
     "watchify": "^3.7.0"
   },
   "dependencies": {
-    "nightmare": "^2.1.2",
-    "vo": "^1.0.3"
   }
 }
