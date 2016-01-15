@@ -1,5 +1,7 @@
 # Task 1
 
+[![Build Status](https://travis-ci.org/bobvortix/s-programming-test.svg?branch=master)](https://travis-ci.org/bobvortix/s-programming-test)
+
 ## Demo
 
 http://bobvortix.github.io/s-programming-test/
