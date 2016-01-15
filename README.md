@@ -36,10 +36,10 @@ Then open up http://localhost:8000
 - Use some ES5 functionality (e.g. `forEach`, `map`, `filter`).
 - Use plain objects and [revealing module](http://zachberry.com/blog/creating-a-custom-node-js-module-with-the-revealing-module-pattern/) pattern with factory method, instead of constructor functions.
 - Uses `localStorage` as persistent browser store.
+- Uses Travis CI to run JS unit tests ([![Build Status](https://travis-ci.org/bobvortix/s-programming-test.svg?branch=master)](https://travis-ci.org/bobvortix/s-programming-test)).
 
 ## TODO
 
 - ESLint
-- Travis CI
 - Much better test coverage, including browser-based acceptance tests (e.g. Nightmare.js)
 - JSONP timeout
